@@ -6,7 +6,9 @@ const bcrypt = require("bcrypt");
 const session = require("express-session");
 const flash = require("express-flash");
 const passport = require("passport");
-
+const date = new Date();
+const uploadLocal = require("./multer");
+const uploadCloud = require("./upload");
 const initializePassport = require("./passportConfig");
 
 initializePassport(passport);
@@ -14,7 +16,8 @@ initializePassport(passport);
 const PORT = process.env.PORT || 5000;
 
 app.set("view engine", "ejs");
-app.use(express.urlencoded({extended: false}));
+//app.use(express.urlencoded({extended: true}));
+app.use(express.json());
 
 app.use(
     session({
@@ -44,8 +47,25 @@ app.get("/users/login", checkAuthenticated, (req, res) => {
 })
 
 app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
-    res.render("dashboard", { user: req.user.name });
+    console.log(req.user);
+    res.render("dashboard", { user: req.user.name, email: req.user.email });
 })
+
+//upload gambar hasil scan
+app.post("/users/dashboard/upload", checkNotAuthenticated, uploadLocal.single('image'), (req, res) => {
+    console.log("upload");
+    console.log(req.user);
+    console.log(req.file);
+    console.log(`${req.fileName}`);
+    uploadCloud(`./images/${req.fileName}`).catch(console.error);
+    res.render("dashboard", { user: req.user.name, email: req.user.email });
+})
+
+// app.post("/users/dashboard/upload", checkNotAuthenticated, uploadHandler.any(), (req, res) => {
+//     console.log(req.user);
+//     console.log(req.files);
+//     res.json(req.files);
+// })
 
 app.get("/users/logout", (req, res) => {
     req.logOut();
@@ -104,7 +124,7 @@ app.post("/users/register", async (req, res) => {
                             if (err) {
                                 throw err;
                             }
-                            console.log(results.row);
+                            console.log(results.rows);
                             req.flash("success_msg", "You are now registered. Please login");
                             res.redirect("/users/login");
                         }
@@ -121,6 +141,10 @@ app.post("/users/login", passport.authenticate('local', {
     failureFlash: true
 }));
 
+app.use((req, res, next) => {
+    res.send("404 - page not found");
+});
+
 function checkAuthenticated(req, res, next){
     if (req.isAuthenticated()){
         return res.redirect("/users/dashboard");
@@ -135,6 +159,12 @@ function checkNotAuthenticated(req, res, next){
     res.redirect("/users/login");
 }
 
+function storeRecent(req, res, next){
+    console.log('recent scan SQL query performed');
+    return next();
+}
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(date.toLocaleString('uk'));
 });
