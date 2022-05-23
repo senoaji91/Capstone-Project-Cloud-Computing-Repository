@@ -1,4 +1,3 @@
-//https://www.youtube.com/watch?v=vxu1RrR0vbw
 const express = require("express");
 const app = express();
 const { pool } = require("./dbConfig");
@@ -7,8 +6,8 @@ const session = require("express-session");
 const flash = require("express-flash");
 const passport = require("passport");
 const date = new Date();
-const uploadLocal = require("./multer");
-const uploadCloud = require("./upload");
+const uploadLocal = require("./uploadLocal");
+const uploadCloud = require("./uploadCloud");
 const initializePassport = require("./passportConfig");
 
 initializePassport(passport);
@@ -16,7 +15,7 @@ initializePassport(passport);
 const PORT = process.env.PORT || 5000;
 
 app.set("view engine", "ejs");
-//app.use(express.urlencoded({extended: true}));
+//app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 
 app.use(
@@ -38,42 +37,61 @@ app.get("/", (req, res) => {
     res.render("index");
 });
 
-app.get("/users/register", checkAuthenticated, (req, res) => {
+app.get("/register", checkAuthenticated, (req, res) => {
     res.render("register");
 })
 
-app.get("/users/login", checkAuthenticated, (req, res) => {
+app.get("/login", checkAuthenticated, (req, res) => {
     res.render("login");
 })
 
-app.get("/users/dashboard", checkNotAuthenticated, (req, res) => {
+app.get("/dashboard", checkNotAuthenticated, (req, res) => {
     console.log(req.user);
-    res.render("dashboard", { user: req.user.name, email: req.user.email });
+    res.send({ user: req.user });
 })
 
 //upload gambar hasil scan
-app.post("/users/dashboard/upload", checkNotAuthenticated, uploadLocal.single('image'), (req, res) => {
+app.post("/upload", checkNotAuthenticated, uploadLocal.single('image'), (req, res) => {
     console.log("upload");
     console.log(req.user);
     console.log(req.file);
     console.log(`${req.fileName}`);
     uploadCloud(`./images/${req.fileName}`).catch(console.error);
-    res.render("dashboard", { user: req.user.name, email: req.user.email });
+    req.imgLink= `https://storage.googleapis.com/skut_recent_scan/${req.fileName}`
+
+    pool.query(
+        `INSERT INTO recent_scan (id, img_link)
+        VALUES ($1, $2) RETURNING scan_id, timestamp, img_link`, [req.user.id, req.imgLink], 
+        (err, results)=>{
+            if (err) {
+                throw err;
+            }
+            console.log(results.rows);
+        }
+    )
+    res.send({ user: req.user, imgLink: req.imgLink });
 })
 
-// app.post("/users/dashboard/upload", checkNotAuthenticated, uploadHandler.any(), (req, res) => {
-//     console.log(req.user);
-//     console.log(req.files);
-//     res.json(req.files);
-// })
+app.get("/recent", checkNotAuthenticated, (req, res) => {
+    pool.query(
+        `SELECT * FROM recent_scan WHERE id = $1`, [req.user.id], 
+        (err, results)=>{
+            if (err) {
+                throw err;
+            }
+            console.log(results.rows);
+            res.send(results.rows);
+        }
+    )
+})
 
-app.get("/users/logout", (req, res) => {
+app.get("/logout", (req, res) => {
     req.logOut();
     req.flash("success_msg", "You have logged out");
-    res.redirect("/users/login");
+    res.redirect("/login");
 })
 
-app.post("/users/register", async (req, res) => {
+app.post("/register", async (req, res) => {
     let { name, email, password, password2 } = req.body;
 
     console.log({
@@ -126,7 +144,7 @@ app.post("/users/register", async (req, res) => {
                             }
                             console.log(results.rows);
                             req.flash("success_msg", "You are now registered. Please login");
-                            res.redirect("/users/login");
+                            res.redirect("/login");
                         }
                     )
                 }
@@ -135,9 +153,9 @@ app.post("/users/register", async (req, res) => {
     }
 });
 
-app.post("/users/login", passport.authenticate('local', {
-    successRedirect: "/users/dashboard",
-    failureRedirect: "/users/login",
+app.post("/login", passport.authenticate('local', {
+    successRedirect: "/dashboard",
+    failureRedirect: "/login",
     failureFlash: true
 }));
 
@@ -147,7 +165,7 @@ app.use((req, res, next) => {
 
 function checkAuthenticated(req, res, next){
     if (req.isAuthenticated()){
-        return res.redirect("/users/dashboard");
+        return res.redirect("/dashboard");
     }
     next();
 }
@@ -156,7 +174,7 @@ function checkNotAuthenticated(req, res, next){
     if (req.isAuthenticated()) {
         return next();
     }
-    res.redirect("/users/login");
+    res.redirect("/login");
 }
 
 function storeRecent(req, res, next){
