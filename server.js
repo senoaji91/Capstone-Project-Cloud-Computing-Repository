@@ -15,8 +15,8 @@ initializePassport(passport);
 const PORT = process.env.PORT || 5000;
 
 app.set("view engine", "ejs");
-//app.use(express.urlencoded({extended: false}));
-app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+app.use(express.json({limit:'50mb'}));
 
 app.use(
     session({
@@ -51,10 +51,12 @@ app.get("/dashboard", checkNotAuthenticated, (req, res) => {
 })
 
 //upload gambar hasil scan
-app.post("/upload", checkNotAuthenticated, uploadLocal.single('image'), (req, res) => {
+app.post("/upload", checkNotAuthenticated, (req, res) => {
     console.log("upload");
     console.log(req.user);
-    console.log(req.file);
+    //console.log(req.file);
+    req.fileName=`${Date.now() + ".jpg"}`;
+    uploadLocal(`${req.body.image}`,`${req.fileName}`) 
     console.log(`${req.fileName}`);
     uploadCloud(`./images/${req.fileName}`).catch(console.error);
     req.imgLink= `https://storage.googleapis.com/skut_recent_scan/${req.fileName}`
@@ -80,6 +82,7 @@ app.get("/recent", checkNotAuthenticated, (req, res) => {
                 throw err;
             }
             console.log(results.rows);
+            //console.log(req);
             res.send(results.rows);
         }
     )
@@ -175,11 +178,6 @@ function checkNotAuthenticated(req, res, next){
         return next();
     }
     res.redirect("/login");
-}
-
-function storeRecent(req, res, next){
-    console.log('recent scan SQL query performed');
-    return next();
 }
 
 app.listen(PORT, () => {
