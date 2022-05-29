@@ -1,6 +1,5 @@
 const express = require("express");
 const multer = require("multer");
-var fs = require("fs");
 
 const app = express();
 
@@ -16,23 +15,11 @@ const fileStorageEngine = multer.diskStorage({
     }
 });
 
-//const uploadLocal = multer({ storage: fileStorageEngine })
+const uploadLocal = multer({ storage: fileStorageEngine })
 
 // app.post('/single', uploadLocal.single('image'), (req, res) => {
 //     console.log(req.file);
 //     res.send("Single file uploadLocal successful");
 // });
-
-function uploadLocal(base64Str,name) {
-    fileName=name;
-    fs.writeFile(`images/${fileName}`, base64Str, {encoding:'base64'}, function(err){
-        if(err){
-            console.log(err)
-        }
-        else{
-            console.log("file created")
-        }
-    })
-}
 
 module.exports = uploadLocal
