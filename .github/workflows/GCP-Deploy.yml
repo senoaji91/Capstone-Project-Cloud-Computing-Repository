@@ -2,9 +2,9 @@ name: Android API Ci/CD pipelines
 
 on:
   push:
-    branches: [token-authentication-1]
+    branches: [test]
   pull_request:
-    branches: [token-authentication-1]
+    branches: [test]
 
 jobs: 
   deploy:
