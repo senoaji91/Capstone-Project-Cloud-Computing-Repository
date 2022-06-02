@@ -37,38 +37,12 @@ const users = []
 //   }
 // })
 
-// app.get('/users', async (req, res) => {
-//     await pool.query(
-//         `SELECT * FROM users`, 
-//         (err, results)=>{
-//             if (err) {
-//                 throw err;
-//             }
-//             //console.log(results.rows)
-//             const users = results.rows
-//             res.json(users)
-//         }
-//     )
-// })
-
-// app.post('/users', async (req, res) => {
-//   try {
-//     const hashedPassword = await bcrypt.hash(req.body.password, 10)
-//     const user = { name: req.body.name, password: hashedPassword }
-//     users.push(user)
-//     res.status(201).send()
-//   } catch {
-//     res.status(500).send()
-//   }
-// })
-
-
 app.post("/upload", authenticateToken, async (req, res) => {
     console.log("upload");
     console.log(req.user);
     //console.log(req.file);
     req.fileName=`${Date.now() + ".jpg"}`;
-    uploadLocal(`${req.body.image}`,`${req.fileName}`) 
+    await uploadLocal(`${req.body.image}`,`${req.fileName}`) 
     console.log(`${req.fileName}`);
     await uploadCloud(`./images/${req.fileName}`).catch(console.error);
     req.imgLink= `https://storage.googleapis.com/skut_recent_scan/${req.fileName}`

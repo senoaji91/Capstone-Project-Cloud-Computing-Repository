@@ -23,9 +23,9 @@ app.use(express.json());
 //     res.send("Single file uploadLocal successful");
 // });
 
-function uploadLocal(base64Str,name) {
+async function uploadLocal(base64Str,name) {
     fileName=name;
-    fs.writeFileSync(`images/${fileName}`, base64Str, {encoding:'base64'}, function(err){
+    fs.writeFile(`images/${fileName}`, base64Str, {encoding:'base64'}, function(err){
         if(err){
             console.log(err)
         }
