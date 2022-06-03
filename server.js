@@ -158,7 +158,7 @@ app.post('/login', async (req, res) => {
 
                     if(isMatch){
                         const accessToken = generateAccessToken(user)
-                        res.send(accessToken)
+                        res.send({token: accessToken})
                     }else{
                         res.send('Not Allowed')
                     }
@@ -171,7 +171,13 @@ app.post('/login', async (req, res) => {
     )
 })
 
+app.delete('/treatment', (req, res) => {
+    console.log(req.body.scan_id);
+    res.send(req.body.scan_id);
+})
+
 app.get('/dashboard', authenticateToken, (req, res) => {
+    let results;
     pool.query(
         `SELECT * FROM recent_scan WHERE id = $1`, [req.user.id], 
         (err, results)=>{
@@ -179,7 +185,18 @@ app.get('/dashboard', authenticateToken, (req, res) => {
                 throw err;
             }
             //console.log(results.rows);
-            res.status(201).send({id:req.user.id, name:req.user.name, email:req.user.email, password: req.user.password, listHistoryFace: results.rows});
+            listHistoryFace = results.rows
+            res.status(201).send({id:req.user.id, name:req.user.name, email:req.user.email, password: req.user.password, listHistoryFace});
+            // pool.query(
+            //     `SELECT * FROM recent_scan WHERE id = $1`, [req.user.id],
+            //     (err, results)=>{
+            //         if (err) {
+            //             throw err;
+            //         }
+            //         listDailyTreatment = results.rows
+            //         res.status(201).send({id:req.user.id, name:req.user.name, email:req.user.email, password: req.user.password, listHistoryFace, listDailyTreatment});
+            //     }
+            // )  
         }
     )
 })
