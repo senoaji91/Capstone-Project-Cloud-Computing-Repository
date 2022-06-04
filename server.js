@@ -112,7 +112,7 @@ app.post("/register", async (req, res) => {
                                 throw err;
                             }
                             console.log(results.rows);
-                            res.status(201).send("You are now registered. Please login");
+                            res.status(201).send({message: "You are now registered. Please login"});
                         }
                     )
                 }
@@ -160,11 +160,11 @@ app.post('/login', async (req, res) => {
                         const accessToken = generateAccessToken(user)
                         res.send({token: accessToken})
                     }else{
-                        res.send('Not Allowed')
+                        res.send({message: "Password incorrect"})
                     }
                 });
             }else{
-                res.status(400).send('Cannot find user');
+                res.status(400).send({message: "User not registered"});
             }
         }
 
