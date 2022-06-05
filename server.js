@@ -10,7 +10,7 @@ const uploadCloud = require("./uploadCloud");
 
 app.use(express.json({limit:'50mb'}))
 
-const users = []
+//const users = []
 
 // app.get('/users', async (req, res) => {
 //     await pool.query(
@@ -36,29 +36,6 @@ const users = []
 //     res.status(500).send()
 //   }
 // })
-
-app.post("/upload", authenticateToken, async (req, res) => {
-    console.log("upload");
-    console.log(req.user);
-    //console.log(req.file);
-    req.fileName=`${Date.now() + ".jpg"}`;
-    await uploadLocal(`${req.body.image}`,`${req.fileName}`) 
-    console.log(`${req.fileName}`);
-    await uploadCloud(`./images/${req.fileName}`).catch(console.error);
-    req.imgLink= `https://storage.googleapis.com/skut_recent_scan/${req.fileName}`
-
-    pool.query(
-        `INSERT INTO recent_scan (id, img_link)
-        VALUES ($1, $2) RETURNING scan_id, timestamp, img_link`, [req.user.id, req.imgLink], 
-        (err, results)=>{
-            if (err) {
-                throw err;
-            }
-            console.log(results.rows);
-        }
-    )
-    res.send({ user: req.user, imgLink: req.imgLink });
-})
 
 app.post("/register", async (req, res) => {
     let { name, email, password, password2 } = req.body;
@@ -121,22 +98,6 @@ app.post("/register", async (req, res) => {
     }
 });
 
-// app.post('/users/login', async (req, res) => {
-//   const user = users.find(user => user.name === req.body.name)
-//   if (user == null) {
-//     return res.status(400).send('Cannot find user')
-//   }
-//   try {
-//     if(await bcrypt.compare(req.body.password, user.password)) {
-//        res.send('Success')
-//     } else {
-//        res.send('Not Allowed')
-//     }
-//   } catch {
-//      res.status(500).send()
-//   }
-// })
-
 app.post('/login', async (req, res) => {
     pool.query(
         `SELECT * FROM users WHERE email =$1`, 
@@ -171,11 +132,6 @@ app.post('/login', async (req, res) => {
     )
 })
 
-app.delete('/treatment', (req, res) => {
-    console.log(req.body.scan_id);
-    res.send(req.body.scan_id);
-})
-
 app.get('/dashboard', authenticateToken, (req, res) => {
     let results;
     pool.query(
@@ -186,19 +142,113 @@ app.get('/dashboard', authenticateToken, (req, res) => {
             }
             //console.log(results.rows);
             listHistoryFace = results.rows
-            res.status(201).send({id:req.user.id, name:req.user.name, email:req.user.email, password: req.user.password, listHistoryFace});
-            // pool.query(
-            //     `SELECT * FROM recent_scan WHERE id = $1`, [req.user.id],
-            //     (err, results)=>{
-            //         if (err) {
-            //             throw err;
-            //         }
-            //         listDailyTreatment = results.rows
-            //         res.status(201).send({id:req.user.id, name:req.user.name, email:req.user.email, password: req.user.password, listHistoryFace, listDailyTreatment});
-            //     }
-            // )  
+           
+            pool.query(
+                `SELECT * FROM daily_treatment WHERE id = $1`, [req.user.id],
+                (err, results)=>{
+                    if (err) {
+                        throw err;
+                    }
+                    listDailyTreatment = results.rows
+                    res.status(201).send({id:req.user.id, name:req.user.name, email:req.user.email, password: req.user.password, listHistoryFace, listDailyTreatment});
+                }
+            )  
         }
     )
+    //res.status(201).send({id:req.user.id, name:req.user.name, email:req.user.email, listHistoryFace:req.listHistoryFace});
+})
+
+app.post('/upload', authenticateToken, async (req, res) => {
+    //console.log("upload");
+    //console.log(req.user);
+    //console.log(req.file);
+    if(!req.body.image){
+        res.send({ message: "Please enter image" });
+    } else {
+        req.fileName=`${Date.now() + ".jpg"}`;
+        await uploadLocal(`${req.body.image}`,`${req.fileName}`) 
+        console.log(`${req.fileName}`);
+        await uploadCloud(`./images/${req.fileName}`).catch(console.error);
+        req.imgLink= `https://storage.googleapis.com/skut_recent_scan/${req.fileName}`
+    
+        pool.query(
+            `INSERT INTO recent_scan (id, img_link)
+            VALUES ($1, $2) RETURNING scan_id, timestamp, img_link`, [req.user.id, req.imgLink], 
+            (err, results)=>{
+                if (err) {
+                    throw err;
+                }
+                console.log(results.rows);
+            }
+        )
+        res.send({ user: req.user, imgLink: req.imgLink });
+    }
+
+})
+
+app.post('/treatment', authenticateToken, async (req, res) => {
+    //console.log("treatment");
+    //console.log(req.user);
+    //console.log(req.file);
+    // req.fileName=`${Date.now() + ".jpg"}`;
+    // await uploadLocal(`${req.body.image}`,`${req.fileName}`) 
+    // console.log(`${req.fileName}`);
+    // await uploadCloud(`./images/${req.fileName}`).catch(console.error);
+    // req.product_image= `https://storage.googleapis.com/skut_recent_scan/${req.fileName}`
+
+    if (!req.body.product_name || !req.body.time){
+        res.send({ message: "Please enter product_name and time" });
+    } else{
+        pool.query(
+            `INSERT INTO daily_treatment (id, product_name, time)
+            VALUES ($1, $2, $3) RETURNING product_name, time, treatment_id`, [req.user.id, req.body.product_name, req.body.time], 
+            (err, results)=>{
+                if (err) {
+                    throw err;
+                }
+                req.results=results.rows;
+                res.send({ results: req.results });
+            }
+        )
+    }
+
+    
+})
+
+app.delete('/treatment', authenticateToken, (req, res) => {
+    if (!req.body.treatment_id){
+        res.send({ message: "Please enter treatment_id" });
+    } else {
+        pool.query(
+            `DELETE FROM daily_treatment WHERE treatment_id=$1 AND id=$2`, [req.body.treatment_id, req.user.id], 
+            (err, results)=>{
+                if (err) {
+                    throw err;
+                }
+                req.results=results.rows;
+                res.send({ message: `Treatment id ${req.body.treatment_id} deleted by ${req.user.name}` });
+            }
+        )
+    }
+    
+})
+
+app.put('/treatment', authenticateToken, async (req, res) => {
+    if (!req.body.treatment_id || !req.body.product_name || !req.body.time){
+        res.send({ message: "Please enter treatment_id, product_name, and time" });
+    } else {
+        pool.query(
+            `UPDATE daily_treatment SET product_name=$1, time=$2 WHERE treatment_id=$3 AND id=$4 RETURNING *`, [req.body.product_name, req.body.time, req.body.treatment_id, req.user.id], 
+            (err, results)=>{
+                if (err) {
+                    throw err;
+                }
+                req.results=results.rows;
+                res.send({ results: req.results});
+            }
+        )
+    }
+
 })
 
 function generateAccessToken(user) {
