@@ -1,6 +1,6 @@
 const express = require("express");
 //const multer = require("multer");
-var fs = require("fs");
+const fs = require("fs");
 
 const app = express();
 

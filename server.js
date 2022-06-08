@@ -6,7 +6,9 @@ const jwt = require('jsonwebtoken');
 const date = new Date();
 const uploadLocal = require("./uploadLocal");
 const uploadCloud = require("./uploadCloud");
-
+const { fstat } = require('fs');
+const spawn = require('child_process').spawn;
+const fs = require("fs");
 
 app.use(express.json({limit:'50mb'}))
 
@@ -135,7 +137,7 @@ app.post('/login', async (req, res) => {
 app.get('/dashboard', authenticateToken, (req, res) => {
     let results;
     pool.query(
-        `SELECT * FROM recent_scan WHERE id = $1`, [req.user.id], 
+        `SELECT * FROM recent_scan WHERE id = $1 ORDER BY scan_id DESC`, [req.user.id], 
         (err, results)=>{
             if (err) {
                 throw err;
@@ -158,10 +160,35 @@ app.get('/dashboard', authenticateToken, (req, res) => {
     //res.status(201).send({id:req.user.id, name:req.user.name, email:req.user.email, listHistoryFace:req.listHistoryFace});
 })
 
+// app.post('/upload', authenticateToken, async (req, res) => {
+//     //console.log("upload");
+//     //console.log(req.user);
+//     //console.log(req.file);
+//     if(!req.body.image){
+//         res.send({ message: "Please enter image" });
+//     } else {
+//         req.fileName=`${Date.now() + ".jpg"}`;
+//         await uploadLocal(`${req.body.image}`,`${req.fileName}`) 
+//         console.log(`${req.fileName}`);
+//         await uploadCloud(`./images/${req.fileName}`).catch(console.error);
+//         req.imgLink= `https://storage.googleapis.com/skut_recent_scan/${req.fileName}`
+    
+//         pool.query(
+//             `INSERT INTO recent_scan (id, img_link)
+//             VALUES ($1, $2) RETURNING scan_id, timestamp, img_link`, [req.user.id, req.imgLink], 
+//             (err, results)=>{
+//                 if (err) {
+//                     throw err;
+//                 }
+//                 console.log(results.rows);
+//             }
+//         )
+//         res.send({ user: req.user, imgLink: req.imgLink });
+//     }
+
+// })
+
 app.post('/upload', authenticateToken, async (req, res) => {
-    //console.log("upload");
-    //console.log(req.user);
-    //console.log(req.file);
     if(!req.body.image){
         res.send({ message: "Please enter image" });
     } else {
@@ -169,21 +196,57 @@ app.post('/upload', authenticateToken, async (req, res) => {
         await uploadLocal(`${req.body.image}`,`${req.fileName}`) 
         console.log(`${req.fileName}`);
         await uploadCloud(`./images/${req.fileName}`).catch(console.error);
-        req.imgLink= `https://storage.googleapis.com/skut_recent_scan/${req.fileName}`
-    
+        req.imgLink= `https://storage.googleapis.com/skut_recent_scan/${req.fileName}`   
+        const python_process = spawn('python', ['./python.py', req.imgLink]);
+        python_process.stdout.on('data', (data) => {
+            scan_result=JSON.parse(data.toString())
+            console.log({ scan_result });
+            pool.query(
+                `INSERT INTO recent_scan (id, img_link, acne, eksim, normal, rosacea)
+                VALUES ($1, $2, $3, $4, $5, $6) RETURNING scan_id, timestamp, img_link`, [req.user.id, req.imgLink, scan_result.acne, scan_result.eksim, scan_result.normal, scan_result.rosacea], 
+                (err, results)=>{
+                    if (err) {
+                        throw err;
+                    }
+                    console.log(results.rows);
+                }
+            )
+            fs.unlinkSync(`./images/${req.fileName}`)
+            res.send({ user: req.user, imgLink: req.imgLink, scan_result });
+        });
+    }
+
+})
+
+app.delete('/upload', authenticateToken, (req, res) => {
+    if (!req.body.scan_id || !req.user.id){
+        res.send({ message: "Please enter scan_id" });
+    } else {
         pool.query(
-            `INSERT INTO recent_scan (id, img_link)
-            VALUES ($1, $2) RETURNING scan_id, timestamp, img_link`, [req.user.id, req.imgLink], 
+            `DELETE FROM daily_treatment WHERE scan_id=$1 AND id=$2`, [req.body.scan_id, req.user.id], 
             (err, results)=>{
                 if (err) {
                     throw err;
                 }
-                console.log(results.rows);
+                res.send({ message: `Scan id ${req.body.scan_id} deleted by ${req.user.name}` });
             }
         )
-        res.send({ user: req.user, imgLink: req.imgLink });
-    }
+    }  
+})
 
+app.delete('/upload/reset', authenticateToken, (req, res) => {
+    if (!req.user.id){
+    } else {
+        pool.query(
+            `DELETE FROM daily_treatment WHERE id=$2`, [ req.user.id], 
+            (err, results)=>{
+                if (err) {
+                    throw err;
+                }
+                res.send({ message: `All recent scan data cleared by ${req.user.name}` });
+            }
+        )
+    }  
 })
 
 app.post('/treatment', authenticateToken, async (req, res) => {
@@ -211,12 +274,10 @@ app.post('/treatment', authenticateToken, async (req, res) => {
             }
         )
     }
-
-    
 })
 
 app.delete('/treatment', authenticateToken, (req, res) => {
-    if (!req.body.treatment_id){
+    if (!req.body.treatment_id || !req.user.id){
         res.send({ message: "Please enter treatment_id" });
     } else {
         pool.query(
@@ -225,7 +286,6 @@ app.delete('/treatment', authenticateToken, (req, res) => {
                 if (err) {
                     throw err;
                 }
-                req.results=results.rows;
                 res.send({ message: `Treatment id ${req.body.treatment_id} deleted by ${req.user.name}` });
             }
         )
@@ -248,7 +308,6 @@ app.put('/treatment', authenticateToken, async (req, res) => {
             }
         )
     }
-
 })
 
 function generateAccessToken(user) {
@@ -261,13 +320,25 @@ function authenticateToken(req, res, next) {
     if (token == null) return res.sendStatus(401)
   
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-      //if (err) {console.log(err)}
-      if (user) {console.log(user)}
-      if (err) return res.sendStatus(403)
-      req.user = user
-      next()
+        //if (err) {console.log(err)}
+        if (user) {console.log(user)}
+        if (err) return res.sendStatus(403)
+        req.user = user
+        next()
     })
 }
+
+// function callPython (data_to_pass_in) {
+//     console.log('Data sent:', data_to_pass_in);
+
+//     const python_process = spawn('python', ['./python.py', data_to_pass_in]);
+
+//     python_process.stdout.on('data', (data) => {
+//         scan_result=JSON.parse(data.toString())
+//         // console.log({ Acne:scan_result.Acne, Eksim:scan_result.Eksim });
+//         return scan_result;
+//     });
+// }
 
 app.listen(8080, () => {
     console.log(`Server running on port 8080`);
