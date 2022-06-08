@@ -30,4 +30,4 @@ with urllib.request.urlopen(Request(url, headers={'User-Agent': 'Mozilla/5.0'}))
         result[kitab.get(str(i))]=prediction[i]
     # with open("prediction.json", "w") as outfile:
     #     json.dump(result, outfile)
-    sys.stdout.print(json.dumps(result))
+    sys.stdout.write(json.dumps(result))
