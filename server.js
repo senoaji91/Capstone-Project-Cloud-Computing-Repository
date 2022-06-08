@@ -211,7 +211,7 @@ app.post('/upload', authenticateToken, async (req, res) => {
                     console.log(results.rows);
                 }
             )
-            fs.unlinkSync(`./images/${req.fileName}`)
+            //fs.unlinkSync(`./images/${req.fileName}`)
             res.send({ user: req.user, imgLink: req.imgLink, scan_result });
         });
     }
