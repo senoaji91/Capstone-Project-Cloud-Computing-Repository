@@ -223,7 +223,7 @@ app.delete('/upload', authenticateToken, (req, res) => {
         res.send({ message: "Please enter scan_id" });
     } else {
         pool.query(
-            `DELETE FROM daily_treatment WHERE scan_id=$1 AND id=$2`, [req.body.scan_id, req.user.id], 
+            `DELETE FROM recent_scan WHERE scan_id=$1 AND id=$2`, [req.body.scan_id, req.user.id], 
             (err, results)=>{
                 if (err) {
                     throw err;
@@ -238,7 +238,7 @@ app.delete('/upload/reset', authenticateToken, (req, res) => {
     if (!req.user.id){
     } else {
         pool.query(
-            `DELETE FROM daily_treatment WHERE id=$2`, [ req.user.id], 
+            `DELETE FROM recent_scan WHERE id=$1`, [ req.user.id], 
             (err, results)=>{
                 if (err) {
                     throw err;
