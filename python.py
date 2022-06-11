@@ -19,7 +19,7 @@ with urllib.request.urlopen(Request(url, headers={'User-Agent': 'Mozilla/5.0'}))
     np_image = tf.image.resize(image, (180, 180))/255
     np_image = np.expand_dims(np_image, axis=0)
     start_time=time.time()
-    url="http://34.101.235.57:8081/v1/models/skut_testing:predict"
+    url="http://localhost:8081/v1/models/skut_testing:predict"
     data=json.dumps({"signature_name":"serving_default","instances":np_image.tolist()})
     headers={"content_type":"application/json"}
     response=requests.post(url,data=data,headers=headers)
