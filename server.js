@@ -343,6 +343,6 @@ function authenticateToken(req, res, next) {
 // }
 
 app.listen(443, () => {
-    console.log(`Server running on port 443`);
+    console.log(`Server running on port 8080`);
     console.log(date.toLocaleString('en-GB'));
 });
