@@ -197,7 +197,7 @@ app.post('/upload', authenticateToken, async (req, res) => {
         console.log(`${req.fileName}`);
         await uploadCloud(`./images/${req.fileName}`).catch(console.error);
         req.imgLink= `https://storage.googleapis.com/skut-bucket-1/${req.fileName}`   
-        const python_process = spawn('python', ['./python.py', req.imgLink]);
+        const python_process = spawn('python3', ['./python.py', req.imgLink]);
         python_process.stdout.on('data', (data) => {
             scan_result=JSON.parse(data.toString())
             console.log({ scan_result });
