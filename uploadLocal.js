@@ -1,6 +1,6 @@
 const express = require("express");
 //const multer = require("multer");
-var fs = require("fs");
+const fs = require("fs");
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.use(express.json());
 //     res.send("Single file uploadLocal successful");
 // });
 
-function uploadLocal(base64Str,name) {
+async function uploadLocal(base64Str,name) {
     fileName=name;
     fs.writeFile(`images/${fileName}`, base64Str, {encoding:'base64'}, function(err){
         if(err){

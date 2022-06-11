@@ -1,8 +1,8 @@
-const bucketName = 'skut_recent_scan';
+const bucketName = 'skut-bucket-1';
 const {Storage} = require('@google-cloud/storage');
 
 // Creates a client
-const storage = new Storage({keyFilename: 'cryptic-skyline-350211-b09504b635a5.json' });
+const storage = new Storage({keyFilename: 'fluted-haven-351608-1b673a72d8fb.json' });
 
 async function uploadCloud(filePath, destFileName) {
   await storage.bucket(bucketName).upload(filePath, {
