@@ -11,7 +11,7 @@ image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
 image=cv2.resize(image,(180,180))/255
 image=np.expand_dims(image,axis=0)
 kitab={"0":"Acne","1":'Eksim',"2":"Normal","3":"Rosacea"}
-url='http://34.101.232.105:8081/v1/models/skut_testing:predict'
+url='http://localhost:8081/v1/models/skut_testing:predict'
 data=json.dumps({'signature_name':"serving_default","instances":image.tolist()})
 headers={'content-type':'application/json'}
 response=requests.post(url,data=data,headers=headers)
