@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "fluted-haven-351608",
+  "private_key_id": "1b673a72d8fb96f9ca821f119d93ffb5f28bef09",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDetbBusjgIbu3v\nj6KsV/FMuFMuGz5Qdg5gja/J3MAUGpysY0558eJf89ZvtrXCAb4Brw5xICJbFXG+\nbSfgN5CMQhnBvSJgg+P4DhEaIWyN4h6HzcaXr9g40UtYfDounaRSEY18ZUxa4GXm\nW3F89nFhyZRbwg/H1K3OfZoxqMghw+Gm0ZlFHeNO2SUhltOirRFalnpObEb7LWR2\n+9hAqzEvPjnbd4BKXpWiBIwRTn1hrlaxj2ZcCz8hDMlcGzeFyGNkmmRC7UbWvb4u\nfHw6ivJ1NS/8umdfrQqszRBdGkmnV9Q2T8nn/ts50cxJf4yIhT2Mcv9WlPkXwUkx\nTQDmCaRFAgMBAAECggEAAXa6v+OCfEW0YSZ1yIG0d49flpY9wNwhyI8t2FsP1SH+\npSBq9+C33u8UmfvesnV9+PdcVjCCoUwhCQIhKLdcxxs5HZ2fX/iF80+uW5hcJQuX\nLUfUNhOFDYyMnPqGDF/jYFm2rxpgV9mROeQgeRSKlryzMa4zGdpjQQ/wx0JHfHdQ\nu/vCHAC0E18AM+ccWr9r12+LgfTRFWLnWEsmfPZbleszloGq5fsBotOjVGInQh2M\n9IsikLz+Pa5+kcqYd2PC5kG9pilr1FncgEpMoX9r/sX8ZaiS7CAtMptpR3Ds7Jqj\nuerSzBPbB6aNQnDDfCrUHUKDTNwMOTunRd/VM+pLsQKBgQD7m8psk4salZRIHT7S\nUqXQS3PWO2uRRaHQ2mMMHPC6ULnQaJSh0QGw4rNP1eEFL+0p4uf05YVwjF+yTJO6\ni+m1E0qBg63kTJGH8819dENDrJhUrXnykeXoJ+Bhqj6D0jb6DdUJ7wMyrbbhOlTN\ns5lSyMC5gEoGO+MTMgqepV3GUQKBgQDimMai9It1B6w607iTmPcBjX5+7dBl81x9\nDydD05Z63XSClVph4K5kxbEfsUKYRqtKw5sL6TCvIH8txZZ9bjhAD9q2rWBf2iSS\n2hPtNt7wfNlgDXLsvHvpJesdoConSD0IxyGfyj0eEaDXJ4UgCvdWumiw45tHrbu8\nvaxsNWFdtQKBgQD6etajDqMtvPlYbVzsDwEpguP3w0HL5pE4FSEDnw/7u3+wPVyy\nVxsi2B0AfoC8JEErMMwQniogqG5gVyG+Vak87c5/bvK/U4aR3KGWohaQmZMwwV6k\noKBLZN9Y+x2vJ6g5eWm7sOjzG8LzJ5njCke6BUbvpQqMeDQQGQI/e4sGcQKBgQDJ\nXDX4DRP4VW8pf4dgMegeCxzDspUkY9RmlZaw4U+xsyWb/RiqLb0Lc9nobd7d7r68\n24HmXbyTg29Av3rxz4ZQ90XGW99uji0+Cmj2vXHzhx6sCod79Cqwjq+WTgPnkHwc\nVsh8dH1HQScKyuW0Ccqt2Uy7FCei1LImEO8t4Wm6mQKBgGzick5uEU16b4f6/XzO\nnqdLdNzlC6Ge/7ZGva37ypO8OORrMHR3XInwCmhj2H89K0cx2KPVkk2iMTUI8IIP\n3B4VgJuJ5LRb9wJb/IfbqgAuLg5zAvWIwnJuotdNfknIWwdxcvMdaRTwUb5DSVV0\nAY1ZtmCx6i6ewRwadh3t4cvH\n-----END PRIVATE KEY-----\n",
+  "client_email": "skut-bucket@fluted-haven-351608.iam.gserviceaccount.com",
+  "client_id": "105008964314704509833",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/skut-bucket%40fluted-haven-351608.iam.gserviceaccount.com"
+}
