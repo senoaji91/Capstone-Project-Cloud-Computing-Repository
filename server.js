@@ -217,8 +217,6 @@ app.post('/upload', authenticateToken, async (req, res) => {
     }
 
 })
-//tes
-//tes
 
 app.delete('/upload', authenticateToken, (req, res) => {
     if (!req.body.scan_id || !req.user.id){
