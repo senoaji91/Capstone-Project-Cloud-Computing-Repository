@@ -1,7 +1,7 @@
 # Capstone-Project-Cloud-Computing-Repository
 Bangkit Academy 2022 Capstone Project Cloud Computing Repository for Skut - Skin Solution (C22-PS098)
 
-Other Repository: 
+Other Repository:
 Machine Learning	: https://github.com/Albert-Setiawan/Capstone-Project-Machine-Learning
 Mobile Development	: https://github.com/Chndr-3/Capstone-Project-Mobile-Development-Repository
 
