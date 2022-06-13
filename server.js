@@ -3,7 +3,7 @@ const app = express();
 const bcrypt = require('bcrypt');
 const { pool } = require("./dbConfig");
 const jwt = require('jsonwebtoken');
-const date = new Date();
+//const date = new Date();
 const uploadLocal = require("./uploadLocal");
 const uploadCloud = require("./uploadCloud");
 const { fstat } = require('fs');
@@ -189,6 +189,9 @@ app.get('/dashboard', authenticateToken, (req, res) => {
 // })
 
 app.post('/upload', authenticateToken, async (req, res) => {
+    const date = new Date();
+    now=date.toLocaleString('en-GB');
+    console.log(now);
     if(!req.body.image){
         res.send({ message: "Please enter image" });
     } else {
@@ -203,7 +206,7 @@ app.post('/upload', authenticateToken, async (req, res) => {
             console.log({ scan_result });
             pool.query(
                 `INSERT INTO recent_scan (id, timestamp, img_link, acne, eksim, normal, rosacea)
-                VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING scan_id, timestamp, img_link`, [req.user.id, date.toLocaleString('en-GB'), req.imgLink, scan_result.acne, scan_result.eksim, scan_result.normal, scan_result.rosacea], 
+                VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING scan_id, timestamp, img_link`, [req.user.id, now, req.imgLink, scan_result.acne, scan_result.eksim, scan_result.normal, scan_result.rosacea], 
                 (err, results)=>{
                     if (err) {
                         throw err;
@@ -342,5 +345,6 @@ function authenticateToken(req, res, next) {
 
 app.listen(8080, () => {
     console.log(`Server running on port 8080`);
-    console.log(date.toLocaleString('en-GB'));
+    //console.log(date.toLocaleString('en-GB'));
+    //console.log(Date.now())
 });
