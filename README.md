@@ -8,6 +8,7 @@ Machine Learning	: https://github.com/Albert-Setiawan/Capstone-Project-Machine-L
 Mobile Development	: https://github.com/Chndr-3/Capstone-Project-Mobile-Development-Repository
 
 Member	: 
+
 (ML) M2391F2949 - Adrianus Charlie Hadirria Agelsadewa - Universitas Sanata Dharma
 
 (ML) M7391F2950 - Albert Ricky Setiawan - Universitas Sanata Dharma
